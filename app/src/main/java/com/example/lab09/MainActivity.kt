@@ -38,11 +38,11 @@ import retrofit2.converter.gson.GsonConverterFactory
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        enableEdgeToEdge() // Esto configura el diseño edge-to-edge si tienes esa funcionalidad implementada
         setContent {
+            // Aquí aplicas el tema de la aplicación y llamas a la función principal `ProgPrincipal9`
             Lab09Theme {
-
-                    ProgPrincipal9()
+                ProgPrincipal9()
             }
         }
     }
@@ -127,5 +127,10 @@ fun Contenido(
             }
         }
     }
+}
+
+@Composable
+fun ScreenInicio() {
+    Text(text = "Inicio tu api aqui wiiiiiiiiiiiiii")
 }
 
