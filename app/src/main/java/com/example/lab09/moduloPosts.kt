@@ -28,25 +28,22 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 
 @Composable
-fun ScreenPosts(navController: NavHostController, servicio: PostApiService) {
-    var listaPosts: SnapshotStateList<PostModel> = remember { mutableStateListOf() }
+fun ScreenPosts(viewModel: PostViewModel, navController: NavHostController) {
+    val listaPosts = viewModel.posts.value
+
     LaunchedEffect(Unit) {
-        val listado = servicio.getUserPosts()
-        listado.forEach { listaPosts.add(it) }
+        viewModel.fetchPosts() // Llamar al ViewModel para obtener los posts
     }
 
-    LazyColumn (
-
-    ){
+    LazyColumn {
         items(listaPosts) { item ->
             Row(modifier = Modifier.padding(8.dp)) {
                 Text(text = item.id.toString(), Modifier.weight(0.05f), textAlign = TextAlign.End)
-                Spacer(Modifier.padding(horizontal=1.dp))
+                Spacer(Modifier.padding(horizontal = 1.dp))
                 Text(text = item.title, Modifier.weight(0.7f))
                 IconButton(
                     onClick = {
                         navController.navigate("postsVer/${item.id}")
-                        Log.e("POSTS","ID = ${item.id}")
                     },
                     Modifier.weight(0.1f)
                 ) {
@@ -57,39 +54,41 @@ fun ScreenPosts(navController: NavHostController, servicio: PostApiService) {
     }
 }
 
+
 @Composable
-fun ScreenPost(navController: NavHostController, servicio: PostApiService, id: Int) {
-    var post by remember { mutableStateOf<PostModel?>(null) }
+fun ScreenPost(viewModel: PostViewModel, navController: NavHostController, id: Int) {
+    val post = viewModel.post.value
+
     LaunchedEffect(Unit) {
-        val xpost = servicio.getUserPostById(id)
-        post = xpost.copy()?.takeIf { xpost.body != null }
+        viewModel.fetchPostById(id) // Llamar al ViewModel para obtener el post
     }
+
     Column(
         Modifier
             .padding(8.dp)
             .fillMaxSize()
     ) {
-        if (post != null){
+        if (post != null) {
             OutlinedTextField(
-                value = post!!.id.toString(),
+                value = post.id.toString(),
                 onValueChange = {},
                 label = { Text("id") },
                 readOnly = true
             )
             OutlinedTextField(
-                value = post!!.userId.toString(),
+                value = post.userId.toString(),
                 onValueChange = {},
                 label = { Text("userId") },
                 readOnly = true
             )
             OutlinedTextField(
-                value = post!!.title.toString(),
+                value = post.title.toString(),
                 onValueChange = {},
                 label = { Text("title") },
                 readOnly = true
             )
             OutlinedTextField(
-                value = post!!.body.toString(),
+                value = post.body.toString(),
                 onValueChange = {},
                 label = { Text("body") },
                 readOnly = true
@@ -97,3 +96,4 @@ fun ScreenPost(navController: NavHostController, servicio: PostApiService, id: I
         }
     }
 }
+

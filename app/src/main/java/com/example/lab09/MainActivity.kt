@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -53,15 +54,20 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun ProgPrincipal9() {
     val urlBase = "https://jsonplaceholder.typicode.com/"
-    val retrofit = Retrofit.Builder().baseUrl(urlBase)
-        .addConverterFactory(GsonConverterFactory.create()).build()
+    val retrofit = Retrofit.Builder()
+        .baseUrl(urlBase)
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
     val servicio = retrofit.create(PostApiService::class.java)
+
+    val viewModel: PostViewModel = viewModel(factory = PostViewModelFactory(servicio))
+
     val navController = rememberNavController()
 
     Scaffold(
-        topBar =    { BarraSuperior() },
+        topBar = { BarraSuperior() },
         bottomBar = { BarraInferior(navController) },
-        content =   { paddingValues -> Contenido(paddingValues, navController, servicio) }
+        content = { paddingValues -> Contenido(paddingValues, navController, viewModel) }
     )
 }
 
@@ -106,7 +112,7 @@ fun BarraInferior(navController: NavHostController) {
 fun Contenido(
     pv: PaddingValues,
     navController: NavHostController,
-    servicio: PostApiService
+    viewModel: PostViewModel
 ) {
     Box(
         modifier = Modifier
@@ -119,15 +125,16 @@ fun Contenido(
         ) {
             composable("inicio") { ScreenInicio() }
 
-            composable("posts") { ScreenPosts(navController, servicio) }
+            composable("posts") { ScreenPosts(viewModel,navController) }
             composable("postsVer/{id}", arguments = listOf(
-                navArgument("id") { type = NavType.IntType} )
-            ) {
-                ScreenPost(navController, servicio, it.arguments!!.getInt("id"))
+                navArgument("id") { type = NavType.IntType }
+            )) {
+                ScreenPost(viewModel,navController, it.arguments!!.getInt("id"))
             }
         }
     }
 }
+
 
 @Composable
 fun ScreenInicio() {
